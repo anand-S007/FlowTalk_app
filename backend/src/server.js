@@ -2,19 +2,29 @@ import express from 'express'
 import 'dotenv/config'
 import cookieParser from 'cookie-parser'
 
-import authRoutes from './routes/auth.route.js'
-import { CONNECT_DB } from './lib/db.js';
- 
 const PORT = process.env.PORT || 3000;
+
+// Route handlers
+import authRoutes from './routes/auth.route.js'
+import userRoutes from './routes/user.route.js'
+
+// Database connection function
+import { CONNECT_DB } from './lib/db.js';
 
 const app = express();
 
+// Middleware to parse json request bodies
 app.use(express.json());
+// Middleware to parse cookies from client request
 app.use(cookieParser())
 
+// Mount authentication routes
 app.use('/api/auth', authRoutes);
+// Mount user-related routes
+app.use('/api/users', userRoutes)
 
-app.listen(PORT, async() => {
+// Start server and DB_connection
+app.listen(PORT, async () => {
     await CONNECT_DB()
     console.log(`http://localhost:${PORT}`)
 })
