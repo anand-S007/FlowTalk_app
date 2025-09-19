@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 // Route handlers
 import authRoutes from './routes/auth.route.js'
 import userRoutes from './routes/user.route.js'
+import chatRoutes from './routes/chat.route.js'
 
 // Database connection function
 import { CONNECT_DB } from './lib/db.js';
@@ -21,7 +22,9 @@ app.use(cookieParser())
 // Mount authentication routes
 app.use('/api/auth', authRoutes);
 // Mount user-related routes
-app.use('/api/users', userRoutes)
+app.use('/api/users', userRoutes);
+// Mount chat routes
+app.use('/api/chat', chatRoutes);
 
 // Start server and DB_connection
 app.listen(PORT, async () => {
