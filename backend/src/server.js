@@ -1,6 +1,7 @@
 import express from 'express'
 import 'dotenv/config'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 const PORT = process.env.PORT || 3000;
 
@@ -14,6 +15,10 @@ import { CONNECT_DB } from './lib/db.js';
 
 const app = express();
 
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 // Middleware to parse json request bodies
 app.use(express.json());
 // Middleware to parse cookies from client request

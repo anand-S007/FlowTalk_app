@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     mobile: {
         type: Number
     },
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+    },
     password: {
         type: String,
         required: true,
