@@ -99,3 +99,25 @@ export const nameValidate = (fullname) => {
     message: errors, // singular 'message'
   };
 };
+
+export const bioValidate = (bio) => {
+  const errors = []
+  const bioRegex = /^(?=.{1,})(?=.*[A-Za-z])([A-Za-z][A-Za-z0-9_-]*)(\s+[A-Za-z0-9_-]+){2,}$/
+
+  if(isEmpty(bio)) {
+    errors.push(
+      "Bio is required"
+    )
+  }else if(!bioRegex.test(bio)) {
+    errors.push(
+      "Bio must contain at least 3 words",
+      "Start with a letter", 
+      "only include letters, numbers, underscores / hyphens"
+    )
+  }
+
+  return {
+    error: errors.length > 0,
+    message: errors
+  }
+}

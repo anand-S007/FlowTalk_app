@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react"
-import toast from "react-hot-toast"
 
-import { completeOnboarding } from "../lib/api.js"
 import useAuthUser from "../hooks/useAuthUser.js"
-import { validateOnboard } from "../validations/userValidations.js"
+import { bioValidate, nameValidate, validateOnboard } from "../validations/userValidations.js"
 import { LANGUAGES } from "../constants/index.js"
-import { useFormErrors } from "../hooks/useFormErrors.js"
+import { useOnboardUser } from "../hooks/useOnboardUser.js"
+import Alert from "@mui/material/Alert"
 
 
 const OnboardPage = () => {
   const { authUser } = useAuthUser()
-  const queryClient = useQueryClient()
 
   // HOOK
   const [showModal, setShowModal] = useState(false);
@@ -21,7 +18,7 @@ const OnboardPage = () => {
   const [loading, setLoading] = useState(false);
 
   // CUSTOM HOOK FOR HANDLING ERRORS
-  const { error, setErrors, clearErrors } = useFormErrors()
+  const [errors, setErrors] = useState([])
 
   const [formState, setFormState] = useState({
     fullname: authUser?.fullname || '',
@@ -32,19 +29,30 @@ const OnboardPage = () => {
     profilePic: selectedAvatar ? selectedAvatar : authUser?.profilePic
   })
 
+  // HANDLE INPUT
+  const handleInput = (e) => {
+    setErrors([])
+    const { name, value } = e.target
+    setFormState((prev) => ({ ...prev, [name]: value }))
+  }
 
-  const { mutate: onboardingMutation, isPending } = useMutation({
-    mutationFn: completeOnboarding,
-    onSuccess: () => {
-      toast.success('User onboarded successfully');
-      console.log('onboarding success');
+  // FORM VALIDATION
+  const validateForm = () => {
+    const validationErrors = []
 
-      queryClient.invalidateQueries({ queryKey: ['userAuth'] })
-    },
-    onError: (error) => {
-      console.log(error);
-    }
-  })
+    // NAME VALIDATION
+    const validatedName = nameValidate(formState?.fullname)
+    if (validatedName.error) validationErrors.push(...validatedName.message)
+
+    // BIO VALIDATION
+    const validatedBio = bioValidate(formState?.bio)
+    if (validatedBio.error) validationErrors.push(...validatedBio.message)
+
+    return validationErrors
+  }
+
+  // ONBOARDING MUTATION
+  const { onboardingMutation, isPending } = useOnboardUser()
 
   // WHENEVER SELECTEDAVATAR CHANGES, UPDATE FORMSTATE
   useEffect(() => {
@@ -53,23 +61,28 @@ const OnboardPage = () => {
     }
   }, [selectedAvatar]);
 
+  // useEffect(() => {
+  //   navigator.geolocation.getCurrentPosition((position))
+  // })
+
   // SUBMIT BUTTON HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validation = validateOnboard(formState);
+    try {
+      const validationErrors = validateForm();
+      if (validationErrors.length > 0) {
+        setErrors(validationErrors);
+        return
+      }
 
-    if (validation.error) {
-      setErrors(validation.message);
-      return;
+      await onboardingMutation(formState);
+    } catch (error) {
+      console.log(error);
+      setErrors([error?.response?.data?.message || error.message || "Something went wrong"]);
     }
 
-    clearErrors();
-    onboardingMutation(formState);
   };
-
-
-
 
   // GENERATE RANDOM AVATAR
   const chooseAvatar = async (e) => {
@@ -201,15 +214,15 @@ const OnboardPage = () => {
 
             </div>
 
-            {error.hasError && (
-              <div role="alert" className="bg-red border border-red-400 text-red-800 p-4 rounded-md mb-4">
-                <strong className="block mb-2">Please fix the following errors:</strong>
-                <ul className="list-disc list-inside space-y-1">
-                  {error.message.map((msg, idx) => (
-                    <li key={idx}>{msg}</li>
+            {/* ERROR MESSAGE */}
+            {errors.length > 0 && (
+              <Alert className='z-10' variant='filled' severity="error">
+                <ul className='list-disc list-inside'>
+                  {errors.map((err, index) => (
+                    <li key={index}>{err}</li>
                   ))}
                 </ul>
-              </div>
+              </Alert>
             )}
 
             {/* FULL NAME */}
@@ -221,7 +234,7 @@ const OnboardPage = () => {
                 type="text"
                 name="fullname"
                 value={formState.fullname}
-                onChange={(e) => setFormState({ ...formState, fullname: e.target.value })}
+                onChange={handleInput}
                 className="input input-bordered w-full"
                 placeholder="Your full name"
               />
@@ -236,7 +249,7 @@ const OnboardPage = () => {
                 type="text"
                 name="bio"
                 value={formState.bio}
-                onChange={(e) => setFormState({ ...formState, bio: e.target.value })}
+                onChange={handleInput}
                 className="input input-bordered w-full"
                 placeholder="Tell others about yourself and your language learning goals"
               />
@@ -253,7 +266,16 @@ const OnboardPage = () => {
                 <select
                   name="nativeLanguage"
                   value={formState.nativeLanguage}
-                  onChange={e => setFormState({ ...formState, nativeLanguage: e.target.value })}
+                  onChange={(e) => {
+                    const selectedNative = e.target.value;
+                    setFormState((prev) => ({
+                      ...prev,
+                      nativeLanguage: selectedNative,
+                      // Reset learning language if it conflicts
+                      learningLanguage:
+                        prev.learningLanguage === selectedNative ? "" : prev.learningLanguage,
+                    }));
+                  }}
                   className="select select-bordered w-full"
                 >
                   <option value="" disabled>Select Your Native Language</option>
@@ -265,7 +287,7 @@ const OnboardPage = () => {
                 </select>
               </div>
 
-              {/* LEARINING LANGUAGE */}
+              {/* LEARNING LANGUAGE */}
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Learning Language</span>
@@ -273,21 +295,20 @@ const OnboardPage = () => {
                 <select
                   name="learningLanguage"
                   value={formState.learningLanguage}
-                  onChange={e => setFormState({ ...formState, learningLanguage: e.target.value })}
+                  onChange={handleInput}
                   className="select select-bordered w-full"
                 >
-                  <option value="" disabled>
-                    Select Your Learning Language
-                  </option>
-                  {LANGUAGES.map((language) => (
-                    formState.nativeLanguage !== language && (
-                      <option key={`learning-${language}`} value={language.toLowerCase()}>
-                        {language}
-                      </option>
-                    )
+                  <option value="" disabled>Select Your Learning Language</option>
+                  {LANGUAGES.filter(
+                    (language) => language.toLowerCase() !== formState.nativeLanguage
+                  ).map((language) => (
+                    <option key={`learning-${language}`} value={language.toLowerCase()}>
+                      {language}
+                    </option>
                   ))}
                 </select>
               </div>
+
 
               {/* LOCATION */}
               <div className="form-control">
@@ -305,7 +326,7 @@ const OnboardPage = () => {
                     type="text"
                     name="location"
                     value={formState.location}
-                    onChange={e => setFormState({ ...formState, location: e.target.value })}
+                    onChange={handleInput}
                     className="input input-bordered w-full pl-10"
                     placeholder="City, Country"
                   />

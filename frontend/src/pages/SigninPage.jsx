@@ -4,6 +4,7 @@ import { ShipWheelIcon } from 'lucide-react';
 
 import useSigninUser from '../hooks/useSigninUser.js';
 import { emailValidate, passwordValidate } from '../validations/userValidations.js';
+import { useState } from 'react';
 
 const SignInPage = () => {
   // HOOKS
@@ -13,21 +14,6 @@ const SignInPage = () => {
   });
   const [errors, setErrors] = useState([]);
 
-  // FORM VALIDATION
-  const validateForm = () => {
-    const validationErrors = [];
-
-    // Email validation
-    const emailResult = emailValidate(formState.email);
-    if (emailResult.error) validationErrors.push(...emailResult.message);
-
-    // Password validation
-    const passwordResult = passwordValidate(formState.password);
-    if (passwordResult.error) validationErrors.push(...passwordResult.message);
-
-    return validationErrors;
-  };
-
   // HANDLE INPUT FIELD
   const handleInput = (e) => {
     const { name, value } = e.target
@@ -35,6 +21,21 @@ const SignInPage = () => {
 
     setErrors([]); // RESET ERROR
   }
+
+  // FORM VALIDATION
+  const validateForm = () => {
+    const validationErrors = [];
+
+    // Email validation
+    const validatedEmail = emailValidate(formState.email);
+    if (validatedEmail.error) validationErrors.push(...validatedEmail.message);
+
+    // Password validation
+    const validatedPassword = passwordValidate(formState.password);
+    if (validatedPassword.error) validationErrors.push(...validatedPassword.message);
+
+    return validationErrors;
+  };
 
   // SIGNIN MUTATION
   const { signinUserAsync, isPending, } = useSigninUser();

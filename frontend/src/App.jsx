@@ -1,23 +1,24 @@
 import { Navigate, Route, Routes } from "react-router";
-
-import HomePage from "./pages/HomePage.jsx";
-import SignInPage from "./pages/SignInPage.jsx";
-import SignUpPage from "./pages/SignUpPage.jsx";
-import NotificationPage from "./pages/NotificationPage.jsx";
-import OnboardPage from "./pages/OnboardPage.jsx";
-import ChatPage from "./pages/ChatPage.jsx";
-import CallPage from "./pages/CallPage.jsx";
-
 import PageLoader from "./components/PageLoader.jsx";
-import useAuthUser from "./hooks/useAuthUser.js";
-import { Toaster } from "react-hot-toast";
+import { 
+  HomePage, 
+  SignInPage, 
+  SignUpPage, 
+  NotificationPage, 
+  OnboardPage, 
+  ChatPage, 
+  CallPage 
+} from './pages/Index.jsx';
 
-// Public route wrapper: Prevents access if already authenticated
+import useAuthUser from "./hooks/useAuthUser.js";
+
+
+// PREVENTS ACCESS IF ALREADY AUTHENTICATED
 const PublicRoute = ({ isAuthenticated, children }) => {
   return isAuthenticated ? <Navigate to="/" /> : children;
 };
 
-// Protected route wrapper: Restricts access if not authenticated
+// RESTRICTS ACCESS IF NOT AUTHENTICATED
 const ProtectedRoute = ({ isAuthenticated, children }) => {
   return !isAuthenticated ? <Navigate to="/signin" /> : children;
 };
@@ -28,9 +29,8 @@ const App = () => {
 
   const isAuthenticated = Boolean(authUser);
   const isOnboarded = authUser?.isOnBoarded;
-  console.log(isOnboarded);
   
-  if (isLoading) return <PageLoader />; // wait until user info is ready
+  if (isLoading) return <PageLoader />; // WAIT UNTIL USER INFO IS READY
 
   return (
     
