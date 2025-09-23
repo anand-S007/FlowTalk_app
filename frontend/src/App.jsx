@@ -10,6 +10,7 @@ import CallPage from "./pages/CallPage.jsx";
 
 import PageLoader from "./components/PageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
+import { Toaster } from "react-hot-toast";
 
 // Public route wrapper: Prevents access if already authenticated
 const PublicRoute = ({ isAuthenticated, children }) => {
@@ -32,6 +33,7 @@ const App = () => {
   if (isLoading) return <PageLoader />; // wait until user info is ready
 
   return (
+    
     <Routes>
       {/* Public Routes */}
       <Route

@@ -30,6 +30,72 @@ export const validateOnboard = (params) => {
 
   return {
     error: errors.length > 0,
-    messages: errors,
+    message: errors,
+  };
+};
+
+const isEmpty = (value) => !value || value.trim() === "";
+
+// Email validation
+export const emailValidate = (email) => {
+  const errors = [];
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (isEmpty(email)) {
+    errors.push("Email is required");
+  } else if (!emailRegex.test(email)) {
+    errors.push("Invalid email format, enter a valid email");
+  }
+
+  return {
+    error: errors.length > 0,
+    message: errors, // singular 'message'
+  };
+};
+
+// Password validation
+export const passwordValidate = (password) => {
+  const errors = [];
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+  if (isEmpty(password)) {
+    errors.push("Password is required");
+  } else if (!passwordRegex.test(password)) {
+    errors.push(
+      "Password must contain at least:",
+      "- One lowercase letter",
+      "- One uppercase letter",
+      "- One digit",
+      "- One special character (!@#$%^&*)",
+      "- Minimum 8 characters"
+    );
+  }
+
+  return {
+    error: errors.length > 0,
+    message: errors, // singular 'message'
+  };
+};
+
+// Full name validation
+export const nameValidate = (fullname) => {
+  const errors = [];
+  // Allow letters, spaces, underscore
+  const nameRegex = /^[A-Za-z _]{3,}$/
+;
+
+  if (isEmpty(fullname)) {
+    errors.push("Name is required");
+  } else if (!nameRegex.test(fullname)) {
+    errors.push(
+      "Invalid name",
+      "- Name can only contain letters, spaces, underscore"
+    );
+  }
+
+  return {
+    error: errors.length > 0,
+    message: errors, // singular 'message'
   };
 };

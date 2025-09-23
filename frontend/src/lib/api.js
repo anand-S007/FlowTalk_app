@@ -17,3 +17,9 @@ export const completeOnboarding = async (userData) => {
   const res = await axiosInstance.post('/auth/onboard', userData);
   return res ? res.data : {}
 }
+
+export const signinMutationApi = async (formState) => {
+  const res = await axiosInstance.post("/auth/signin", formState);
+  
+  return res ? res.data : {};
+}
