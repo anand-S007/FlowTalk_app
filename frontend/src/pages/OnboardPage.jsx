@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { completeOnboarding } from "../lib/api.js"
-import toast from "react-hot-toast"
 import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react"
+import toast from "react-hot-toast"
 
+import { completeOnboarding } from "../lib/api.js"
 import useAuthUser from "../hooks/useAuthUser.js"
 import { validateOnboard } from "../validations/userValidations.js"
 import { LANGUAGES } from "../constants/index.js"
@@ -46,7 +46,7 @@ const OnboardPage = () => {
     }
   })
 
-  // Whenever selectedAvatar changes, update formState
+  // WHENEVER SELECTEDAVATAR CHANGES, UPDATE FORMSTATE
   useEffect(() => {
     if (selectedAvatar) {
       setFormState(prev => ({ ...prev, profilePic: selectedAvatar }));
@@ -60,7 +60,7 @@ const OnboardPage = () => {
     const validation = validateOnboard(formState);
 
     if (validation.error) {
-      setErrors(validation.messages);
+      setErrors(validation.message);
       return;
     }
 
@@ -205,7 +205,7 @@ const OnboardPage = () => {
               <div role="alert" className="bg-red border border-red-400 text-red-800 p-4 rounded-md mb-4">
                 <strong className="block mb-2">Please fix the following errors:</strong>
                 <ul className="list-disc list-inside space-y-1">
-                  {error.messages.map((msg, idx) => (
+                  {error.message.map((msg, idx) => (
                     <li key={idx}>{msg}</li>
                   ))}
                 </ul>

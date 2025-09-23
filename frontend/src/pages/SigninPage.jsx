@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import { Link } from 'react-router';
 import Alert from '@mui/material/Alert';
+import { ShipWheelIcon } from 'lucide-react';
 
 import useSigninUser from '../hooks/useSigninUser.js';
-import { Link } from 'react-router';
-import { ShipWheelIcon } from 'lucide-react';
 import { emailValidate, passwordValidate } from '../validations/userValidations.js';
 
 const SignInPage = () => {
@@ -30,21 +29,11 @@ const SignInPage = () => {
   };
 
   // HANDLE INPUT FIELD
-  const handleInput = (event, state) => {
+  const handleInput = (e) => {
+    const { name, value } = e.target
+    setFormState((prev) => ({ ...prev, [name]: value }))
 
-    if (state === 'email')
-      setFormState({
-        ...formState,
-        email: event.target.value
-      })
-
-    if (state === 'password')
-      setFormState({
-        ...formState,
-        password: event.target.value
-      })
-    // RESET ERROR
-    setErrors([]);
+    setErrors([]); // RESET ERROR
   }
 
   // SIGNIN MUTATION
@@ -127,9 +116,10 @@ const SignInPage = () => {
                     </label>
                     <input
                       type="email"
+                      name='email'
                       placeholder='eg:- anand@gmail.com'
                       value={formState.email}
-                      onChange={e => handleInput(e, 'email')}
+                      onChange={handleInput}
                       className='input input-bordered w-full'
                     />
                   </div>
@@ -141,9 +131,10 @@ const SignInPage = () => {
                     </label>
                     <input
                       type="password"
+                      name='password'
                       placeholder='eg:- ******'
                       value={formState.password}
-                      onChange={e => handleInput(e, 'password')}
+                      onChange={handleInput}
                       className='input input-bordered w-full'
                     />
                   </div>
