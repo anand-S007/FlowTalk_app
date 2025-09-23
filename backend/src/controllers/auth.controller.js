@@ -8,15 +8,24 @@ export async function signIn(req, res) {
     try {
         const { email, password } = req.body;
         if (!email || !password)
-            return res.status(400).json({ message: "Email and passwords are required" });
+            return res.status(400).json({
+                success: false,
+                message: "Email and passwords are required"
+            });
 
         const user = await User.findOne({ email });
         if (!user)
-            return res.status(404).json({ message: "User with this email does not exist." });
+            return res.status(404).json({
+                success: false,
+                message: "User with this email does not exist."
+            });
 
         const matchPassword = await bcrypt.compare(String(password), user.password);
         if (!matchPassword)
-            return res.status(401).json({ message: "Invalid password" });
+            return res.status(401).json({
+                success: false,
+                message: "Password do not match, try agian."
+            });
 
         // Generate JWT token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
@@ -39,7 +48,10 @@ export async function signIn(req, res) {
 
     } catch (error) {
         console.error("Error while signin = ", error)
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
 }
 
@@ -126,9 +138,9 @@ export async function signUp(req, res) {
 
     } catch (error) {
         console.error("Error in signup controller = ", error);
-        res.status(500).json({ 
-            success: false, 
-            message: "Internal server error" 
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
         });
     }
 }
