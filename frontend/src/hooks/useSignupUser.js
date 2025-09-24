@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { signupApi } from "../lib/api";
+import { signupApi } from "../lib/userAuthApi";
 
 const useSignupUser = () => {
     const queryClient = useQueryClient()

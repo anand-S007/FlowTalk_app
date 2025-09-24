@@ -1,31 +1,24 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import React from 'react'
-
-import toast, {Toaster} from 'react-hot-toast'
-import axiosInstance from '../lib/axiosInstance'
+import { Toaster } from 'react-hot-toast'
+import useSignoutUser from '../hooks/useSignoutUser'
 
 const HomePage = () => {
-  const queryClient = useQueryClient()
-  const {mutate:signoutMutation}  =useMutation({
-    queryKey:["userAuth"],
-    mutationFn: async() => {
-      const response = await axiosInstance.post('/auth/signout')
-      return response.data
-    },
-    onSuccess: () => {
-      toast.success("Sign out successfully")
-      queryClient.invalidateQueries({queryKey: ["userAuth"]})
+  const {signoutUser}  = useSignoutUser()
+
+  const handleSignout = async (e) => {
+    e.preventDefault()
+    try {
+      signoutUser()
+      
+    } catch (error) {
+      console.log(error);
     }
-  })
+  }
   return (
     <div>
       HomePage <br />
       <Toaster/>
 
-      <button onClick={() => {
-        signoutMutation()
-
-      }}>
+      <button onClick={handleSignout}>
         Sign out
       </button>
     </div>

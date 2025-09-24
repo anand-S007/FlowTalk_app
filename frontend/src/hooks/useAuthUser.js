@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAuthUserApi } from "../lib/api";
+import { getAuthUserApi } from "../lib/userAuthApi";
 
 // Custom hook to fetch the currently logged-in user
 const useAuthUser = () => {

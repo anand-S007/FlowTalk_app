@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 
-import { completeOnboarding } from "../lib/api";
+import { completeOnboarding } from "../lib/userAuthApi";
 
 export const useOnboardUser = () => {
   const queryClient = useQueryClient();

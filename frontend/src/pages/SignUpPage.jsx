@@ -26,7 +26,7 @@ const SignupPage = () => {
   // HANDLE INPUT CHANGES
   const handleInput = (e) => {
     const { name, value } = e.target;
-    
+
     setSignupData((prev) => ({ ...prev, [name]: value }));
     setErrors([]); // RESET ERRORS
   };
@@ -49,41 +49,41 @@ const SignupPage = () => {
 
   // HANDLE FORM SUBMISSION
   const handleSignup = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const validationErrors = validateForm();
-  if (validationErrors.length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-
-  try {
-    await userSignupAsync(signupData);
-  } catch (err) {
-    const serverError = err?.response?.data;
-
-    if (Array.isArray(serverError)) {
-      setErrors(serverError); 
-    } else if (serverError?.message) {
-      setErrors([serverError.message]); 
-    } else {
-      setErrors(["Something went wrong. Please try again."]);
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
-    console.error("server error = ", serverError);
-  }
-};
+    try {
+      await userSignupAsync(signupData);
+    } catch (err) {
+      const serverError = err?.response?.data;
+
+      if (Array.isArray(serverError)) {
+        setErrors(serverError);
+      } else if (serverError?.message) {
+        setErrors([serverError.message]);
+      } else {
+        setErrors(["Something went wrong. Please try again."]);
+      }
+
+      console.error("server error = ", serverError);
+    }
+  };
 
 
   return (
     <div
-      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
+      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-scroll"
       data-theme="forest"
     >
       <div
         className="border border-primary/25 flex flex-col lg:flex-row 
                  w-full max-w-5xl mx-auto bg-base-100 rounded-xl 
-                 shadow-lg overflow-hidden"
+                 shadow-lg "
       >
         {/* SIGNUP FORM - LEFT SIDE */}
         <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
@@ -144,9 +144,9 @@ const SignupPage = () => {
                     <label htmlFor="" className='label'>
                       <span className='label-text'>Email</span>
                     </label>
-                    <input 
-                    type="email"
-                    name='email'
+                    <input
+                      type="email"
+                      name='email'
                       placeholder='eg:- anand@gmail.com'
                       className='input input-bordered w-full'
                       value={signupData.email}
@@ -194,9 +194,9 @@ const SignupPage = () => {
                     <label htmlFor="" className='label'>
                       <span className='label-text'>Password</span>
                     </label>
-                    <input 
-                    type="password"
-                    name='password'
+                    <input
+                      type="password"
+                      name='password'
                       placeholder='******'
                       className='input input-bordered w-full'
                       value={signupData.password}

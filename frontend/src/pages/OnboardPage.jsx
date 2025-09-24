@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
-import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react"
+import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon, Locate } from "lucide-react"
 
 import useAuthUser from "../hooks/useAuthUser.js"
 import { bioValidate, nameValidate, validateOnboard } from "../validations/userValidations.js"
 import { LANGUAGES } from "../constants/index.js"
 import { useOnboardUser } from "../hooks/useOnboardUser.js"
 import Alert from "@mui/material/Alert"
+import useSignoutUser from "../hooks/useSignoutUser.js"
+import toast from "react-hot-toast"
+import { Navigate } from "react-router"
 
 
 const OnboardPage = () => {
@@ -19,14 +22,13 @@ const OnboardPage = () => {
 
   // CUSTOM HOOK FOR HANDLING ERRORS
   const [errors, setErrors] = useState([])
-
   const [formState, setFormState] = useState({
     fullname: authUser?.fullname || '',
     bio: authUser?.bio || '',
     nativeLanguage: authUser?.nativeLanguage || '',
     learningLanguage: authUser?.learningLanguage || '',
     location: authUser?.location || '',
-    profilePic: selectedAvatar ? selectedAvatar : authUser?.profilePic
+    profilePic: authUser?.profilePic ? authUser?.profilePic : selectedAvatar
   })
 
   // HANDLE INPUT
@@ -51,19 +53,49 @@ const OnboardPage = () => {
     return validationErrors
   }
 
-  // ONBOARDING MUTATION
-  const { onboardingMutation, isPending } = useOnboardUser()
 
   // WHENEVER SELECTEDAVATAR CHANGES, UPDATE FORMSTATE
   useEffect(() => {
     if (selectedAvatar) {
+      console.log('selectedAvatar = ', selectedAvatar);
+
       setFormState(prev => ({ ...prev, profilePic: selectedAvatar }));
     }
   }, [selectedAvatar]);
 
-  // useEffect(() => {
-  //   navigator.geolocation.getCurrentPosition((position))
-  // })
+  // GENERATE AVATAR
+  const chooseAvatar = async (e) => {
+    e.preventDefault();
+    let avatarOf = authUser.gender === "male" ? "boy" : "girl";
+
+    setLoading(true);
+    setShowModal(true);
+
+    // generate multiple random avatars
+    const newAvatars = Array.from({ length: 6 }, () =>
+      `https://avatar.iran.liara.run/public/${avatarOf}?id=${Math.floor(Math.random() * 1000)}`
+    );
+
+    // Instead of waiting for all images, set them immediately
+    setAvatars(newAvatars);
+    setLoading(false);
+  };
+
+  // ONBOARDING QUERY
+  const { onboardingMutation, isPending } = useOnboardUser()
+
+  // SIGN OUT QUERY
+  const { signoutUser } = useSignoutUser()
+
+  const handleSignout = async (e) => {
+
+    e.preventDefault()
+    try {
+      await signoutUser()
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // SUBMIT BUTTON HANDLER
   const handleSubmit = async (e) => {
@@ -84,40 +116,22 @@ const OnboardPage = () => {
 
   };
 
-  // GENERATE RANDOM AVATAR
-  const chooseAvatar = async (e) => {
-    e.preventDefault()
-    let avatarOf = authUser.gender === "male" ? "boy" : "girl";
 
-    setLoading(true)
-    setShowModal(true);
-
-    // generate multiple random avatars
-    const newAvatars = Array.from({ length: 6 }, () =>
-      `https://avatar.iran.liara.run/public/${avatarOf}?id=${Math.floor(Math.random() * 1000)}`
-    );
-
-    // Preload all images
-    await Promise.all(
-      newAvatars.map(
-        (url) =>
-          new Promise((resolve) => {
-            const img = new Image();
-            img.src = url;
-            img.onload = resolve;
-            img.onerror = resolve; // handle failed loads gracefully
-          })
-      )
-    );
-
-    setAvatars(newAvatars);
-    setLoading(false)
-  }
 
   return (
     <div className="min-h-screen bg-base-100 flex items-center justify-center p-4">
       <div className="card bg-base-300 w-full max-w-3xl shadow-xl">
         <div className="card-body p-6 sm:p-8">
+
+          {/* SIGN OUT BUTTON */}
+          <div className="flex items-end justify-end">
+            <button
+              onClick={handleSignout}
+              className="w-36 btn btn-primary btn-outline">
+              Sign out
+            </button>
+          </div>
+
           <h1 className="text-2xl text-center sm:text-3xl p-6 sm:p-8">Complete Your Profile</h1>
 
           {/* FORM */}
@@ -308,8 +322,7 @@ const OnboardPage = () => {
                   ))}
                 </select>
               </div>
-
-
+            </div>
               {/* LOCATION */}
               <div className="form-control">
                 <label className="label">
@@ -331,9 +344,17 @@ const OnboardPage = () => {
                     placeholder="City, Country"
                   />
                 </div>
+                  <button
+                    type="button"
+                    className="
+                      flex items-center justify-end mt-3 gap-1
+                      link-primary cursor-pointer "
+                  >
+                  <Locate className="size- " />
+                    Detect my location
+                  </button>
               </div>
-
-            </div>
+              
             {/* SUBMIT BUTTON */}
             <button className="btn btn-primary w-full" disabled={isPending} type="submit">
               {!isPending ? (
