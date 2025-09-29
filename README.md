@@ -10,6 +10,7 @@ Users can find friends who share their language goals, practice conversations in
 
    Video calls - Realtime Streaming feature with "Stream"
    User authentication - Secure User Authentication with JWT
+   Find current location - Bigdata cloud api
 
 ## Tech-stack
 
