@@ -2,13 +2,13 @@ import { useEffect, useState } from "react"
 import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon, Locate } from "lucide-react"
 
 import useAuthUser from "../hooks/useAuthUser.js"
-import { bioValidate, nameValidate, validateOnboard } from "../validations/userValidations.js"
+import { bioValidate, nameValidate } from "../validations/userValidations.js"
 import { LANGUAGES } from "../constants/index.js"
 import { useOnboardUser } from "../hooks/useOnboardUser.js"
 import Alert from "@mui/material/Alert"
 import useSignoutUser from "../hooks/useSignoutUser.js"
-import toast from "react-hot-toast"
-import { Navigate } from "react-router"
+import { getCurrentLocation } from "../lib/locationApi.js"
+import axios from "axios"
 
 
 const OnboardPage = () => {
@@ -35,6 +35,8 @@ const OnboardPage = () => {
   const handleInput = (e) => {
     setErrors([])
     const { name, value } = e.target
+    console.log('input field = ', name, 'input value = ', value);
+
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -97,6 +99,33 @@ const OnboardPage = () => {
     }
   }
 
+  // GET CURRENT LOCATION
+  const detectLocation = async () => {
+    setLoading(true)
+    try {
+      // GETTING LATITUTDE AND LONGITUDE
+      const res = await getCurrentLocation();
+
+      // "BIG DATA CLOUD" API ENDPOINT
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${res.lat}&longitude=${res.lng}&localityLanguage=en`
+
+      // REQUEST FOR FETCH CURRENT LOCATION
+      const response = await axios.get(url);
+      // const data = response.data
+      console.log(response.data);
+
+      const { city, principalSubdivision, countryName } = response.data;
+      setFormState((prev) => ({
+        ...prev,
+        location: `${city}, ${principalSubdivision}, ${countryName}`
+      }))
+
+      setLoading(false)
+    } catch (err) {
+      setErrors([err.message]);
+    }
+  };
+
   // SUBMIT BUTTON HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,7 +144,6 @@ const OnboardPage = () => {
     }
 
   };
-
 
 
   return (
@@ -323,38 +351,46 @@ const OnboardPage = () => {
                 </select>
               </div>
             </div>
-              {/* LOCATION */}
-              <div className="form-control">
-                <label className="label">
-                  <span className="label label-text">
-                    Location
-                  </span>
-                </label>
-                <div className="relative">
-                  <MapPinIcon
-                    className="absolute top-1/2 
+            {/* LOCATION */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label label-text">
+                  Location
+                </span>
+              </label>
+              <div className="relative">
+                <MapPinIcon
+                  className="absolute top-1/2 
                       transfrom -translate-y-1/2 left-3 
                       size-5 text-base-content opacity-70"/>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formState.location}
-                    onChange={handleInput}
-                    className="input input-bordered w-full pl-10"
-                    placeholder="City, Country"
-                  />
-                </div>
-                  <button
-                    type="button"
-                    className="
+                <input
+                  type="text"
+                  name="location"
+                  value={formState.location}
+                  readOnly
+                  className="input input-bordered w-full pl-10"
+                  placeholder="City, Country"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={detectLocation}
+                className="
                       flex items-center justify-end mt-3 gap-1
                       link-primary cursor-pointer "
-                  >
-                  <Locate className="size- " />
-                    Detect my location
-                  </button>
-              </div>
-              
+              >
+                <Locate className="w-5 h-5" />
+                {loading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Finding location...
+                  </>
+                ) : (
+                  "Detect my location"
+                )}
+              </button>
+            </div>
+
             {/* SUBMIT BUTTON */}
             <button className="btn btn-primary w-full" disabled={isPending} type="submit">
               {!isPending ? (
