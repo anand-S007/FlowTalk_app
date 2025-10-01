@@ -12,16 +12,30 @@ Users can find friends who share their language goals, practice conversations in
    User authentication - Secure User Authentication with JWT
    Find current location - Bigdata cloud api
 
-## Tech-stack
+## Tech Stack
 
-Frontend: React, TailwindCSS, daisy ui, React Query
+### Frontend
+- **React.js** – Component-based UI library
+- **Tailwind CSS + DaisyUI** – Utility-first CSS framework with pre-built UI components and themes
+- **React Query** – Data fetching, caching, and synchronization
+- **Zustand** – Lightweight global state management
 
-Backend: Node.js, Express.js
+### Backend
+- **Node.js** – JavaScript runtime for server-side development
+- **Express.js** – Minimal and flexible web framework
 
-Database: MongoDB 
+### Database
+- **MongoDB** – NoSQL document-oriented database
 
-Authentication: JWT, bcrypt
+### Authentication & Security
+- **JWT (JSON Web Tokens)** – Secure authentication
+- **bcrypt** – Password hashing and encryption
 
-Real-time: 
+### Real-Time Features
 
-Deployment: 
+
+### Deployment
+- **Frontend** – 
+- **Backend** – 
+- **Database** – MongoDB Atlas (Cloud-based database hosting)
+
