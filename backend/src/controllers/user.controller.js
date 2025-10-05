@@ -53,7 +53,7 @@ export const getMyFriends = async (req, res) => {
 
         if (friends.length === 0) {
             return res.status(200).json({
-                success: true,
+                success: false,
                 isEmpty: true,
                 message: "No friends yet",
                 friends: []
