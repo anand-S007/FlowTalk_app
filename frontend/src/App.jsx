@@ -11,6 +11,9 @@ import {
 } from "./pages/Index.jsx";
 
 import useAuthUser from "./hooks/useAuthUser.js";
+import Layout from "./components/Layout.jsx";
+import { useThemeStore } from "./store/useThemeStore.js";
+
 
 // PUBLIC ROUTE (block if already logged in)
 const PublicRoute = ({ isAuthenticated, children }) => {
@@ -37,95 +40,103 @@ const App = () => {
   const isAuthenticated = Boolean(authUser);
   const isOnboarded = authUser?.isOnBoarded;
 
+  const { theme, setTheme } = useThemeStore()
+  
   if (isLoading) return <PageLoader />; // Wait until user info is ready
 
+
   return (
-    <Routes>
-      {/* SIGNIN ROUTE */}
-      <Route
-        path="/signin"
-        element={
-          <PublicRoute isAuthenticated={isAuthenticated}>
-            <SignInPage />
-          </PublicRoute>
-        }
-      />
+    <div className="h-full" data-theme={theme}>
+      <Routes>
+        {/* SIGNIN ROUTE */}
+        <Route
+          path="/signin"
+          element={
+            <PublicRoute isAuthenticated={isAuthenticated}>
+              <SignInPage />
+            </PublicRoute>
+          }
+        />
 
-      {/* SIGNUP ROUTE */}
-      <Route
-        path="/signup"
-        element={
-          <PublicRoute isAuthenticated={isAuthenticated}>
-            <SignUpPage />
-          </PublicRoute>
-        }
-      />
+        {/* SIGNUP ROUTE */}
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute isAuthenticated={isAuthenticated}>
+              <SignUpPage />
+            </PublicRoute>
+          }
+        />
 
-      {/* HOME ROUTE */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute
-            isAuthenticated={isAuthenticated}
-            isOnboarded={isOnboarded}
-          >
-            <HomePage />
-          </ProtectedRoute>
-        }
-      />
+        {/* HOME ROUTE */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboarded={isOnboarded}
+            >
+              <Layout showSidebar={true}>
+                <HomePage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* NOTIFICATION ROUTE */}
-      <Route
-        path="/notifications"
-        element={
-          <ProtectedRoute
-            isAuthenticated={isAuthenticated}
-            isOnboarded={isOnboarded}
-          >
-            <NotificationPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* NOTIFICATION ROUTE */}
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboarded={isOnboarded}
+            >
+              <NotificationPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* CALL ROUTE */}
-      <Route
-        path="/call"
-        element={
-          <ProtectedRoute
-            isAuthenticated={isAuthenticated}
-            isOnboarded={isOnboarded}
-          >
-            <CallPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* CALL ROUTE */}
+        <Route
+          path="/call"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboarded={isOnboarded}
+            >
+              <CallPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* CHAT ROUTE */}
-      <Route
-        path="/chat"
-        element={
-          <ProtectedRoute
-            isAuthenticated={isAuthenticated}
-            isOnboarded={isOnboarded}
-          >
-            <ChatPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* CHAT ROUTE */}
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboarded={isOnboarded}
+            >
+              <ChatPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ONBOARD ROUTE */}
-      <Route
-        path="/onboard"
-        element={
-          <OnboardRoute
-            isAuthenticated={isAuthenticated}
-            isOnboarded={isOnboarded}
-          >
-            <OnboardPage />
-          </OnboardRoute>
-        }
-      />
-    </Routes>
+        {/* ONBOARD ROUTE */}
+        <Route
+          path="/onboard"
+          element={
+            <OnboardRoute
+              isAuthenticated={isAuthenticated}
+              isOnboarded={isOnboarded}
+            >
+              <OnboardPage />
+            </OnboardRoute>
+          }
+        />
+      </Routes>
+    </div>
+
   );
 };
 
