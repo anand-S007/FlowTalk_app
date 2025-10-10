@@ -1,31 +1,46 @@
-import { useEffect, useState } from 'react'
-import { data, Link } from 'react-router'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from 'lucide-react'
-import { useGetFriends, useGetOutgoingFriendReqs, useGetRecommendedUsers, useSendFriendReqs } from '../hooks/useUserFriends'
+import { useAcceptFriendReqs, useGetFriendReqs, useGetFriends, useGetOutgoingFriendReqs, useGetRecommendedUsers, useRejectFriendReqs, useSendFriendReqs } from '../hooks/useUserFriends'
 import FriendCard, { getLanguageFlag } from '../components/FriendCard'
 import NoFriendsFound from '../components/NoFriendsFound'
+import { capitalize } from '../lib/utils'
 
 const HomePage = () => {
 
-  const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());  // STATE FOR FRIEND REQUEST
+  const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());  // STATE FOR OUTGOING FRIEND REQUEST
+  const [friends, setFriends] = useState([])
 
   const { data: friendsData, isLoading: loadingFriends } = useGetFriends();  // GET FRIENDS DATA
-  const friends = friendsData ? friendsData.friends : [];
+
+  const { data: friendRequests } = useGetFriendReqs();                       // GET INCOMING REQUESTS
+  const incomingRequestsMap = useMemo(() => {
+  const incomingFriendReqs = friendRequests?.incomingRequest || [];
+  return new Map(incomingFriendReqs.map(req => [req.sender._id, req._id]));
+}, [friendRequests]);
 
   const { data: recommendedUsersData, isLoading: loadingUsers } = useGetRecommendedUsers(); // GET RECOMMENDED USERS
-  const recommendedUsers = recommendedUsersData?.recommendedUsers
+  const recommendedUsers = recommendedUsersData?.recommendedUsers;
 
   const { data: outGoingFriendReqs } = useGetOutgoingFriendReqs();           // GET OUTGOING FRIEND REQUESTS
-  
+
   const { mutate: sendReqMutations, isPending } = useSendFriendReqs();       // SEND FRIEND REQUEST MUTATION
+
+  const { mutate: acceptRequestMutation, isPending: isAcceptPending } = useAcceptFriendReqs();     // ACCEPT FRIEND REQUEST
+  const { mutate: rejectRequestMutation, isPending: isRejectionPending } = useRejectFriendReqs(); // REJECT FRIEND REQUEST
+
+  // SET FRIENDS STATE
+  useEffect(() => {
+    setFriends(friendsData ? friendsData.friends : []);
+  }, [friendsData]);
 
   // UPDATING OUTGOING REQUEST ID STATE
   useEffect(() => {
-  const outgoingIds = new Set(
-    outGoingFriendReqs?.outGoingFriendRequests?.map(req => req.recipient) || []
-  );
-  setOutgoingRequestsIds(outgoingIds);
-}, [outGoingFriendReqs]);
+    const outgoingIds = new Set(
+      outGoingFriendReqs?.outGoingFriendRequests?.map(req => req.recipient) || []
+    );
+    setOutgoingRequestsIds(outgoingIds);
+  }, [outGoingFriendReqs, friendRequests]);
 
   return (
     <div className='p-4 sm:p-6 lg:p-8'>
@@ -47,7 +62,7 @@ const HomePage = () => {
         ) : friends.length === 0 ? (
           <NoFriendsFound />
         ) : (
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto gap-4 '>
             {friends.map((friend) => (
               <FriendCard key={friend._id} friend={friend} />
             ))}
@@ -83,9 +98,10 @@ const HomePage = () => {
             </div>
           ) : (
 
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-hidden'>
               {recommendedUsers.map((user) => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id)
+                const requestId = incomingRequestsMap.get(user._id);
                 
                 return (
                   <div key={user._id}
@@ -121,26 +137,58 @@ const HomePage = () => {
                       {/* BIO */}
                       <p className='text-sm opacity-80'> {user.bio}</p>
 
-                      {/* FRIEND REQUEST BUTTON */}
-                      <button
-                        className={`btn w-full mt-2 ${hasRequestBeenSent ? 'btn-disabled' : 'btn-primary'}`}
-                        onClick={() => { 
-                          sendReqMutations(user._id) 
-                        }}
-                        disabled={hasRequestBeenSent || isPending}
-                      >
-                        {hasRequestBeenSent ? (
-                          <>
-                            <CheckCircleIcon className='size-4 mr-2' />
+                      {/* ACTION BUTTON */}
+                      <div className="mt-2">
+                        {requestId ? (
+                          // Incoming friend request → show Accept / Reject buttons
+                          <div className="flex flex-row gap-3 justify-center">
+                            <button
+                              className="btn btn-primary flex-1"
+                              onClick={() => acceptRequestMutation(requestId)}
+                              disabled={isAcceptPending}
+                            >
+                              {isAcceptPending ? (
+                                <span className="loading loading-spinner loading-xs" />
+                              ) : (
+                                'Accept'
+                              )}
+                            </button>
+                            <button
+                              className="btn btn-outline border-red-700 text-red-700 flex-1"
+                              onClick={() => rejectRequestMutation(requestId)}
+                              disabled={isRejectionPending}
+                            >
+                              {isRejectionPending ? (
+                                <span className="loading loading-spinner loading-xs" />
+                              ) : (
+                                'Reject'
+                              )}
+                            </button>
+                          </div>
+                        ) : hasRequestBeenSent ? (
+                          // Outgoing friend request already sent
+                          <button className="btn btn-disabled w-full mt-2">
+                            <CheckCircleIcon className="size-4 mr-2" />
                             Request Sent
-                          </>
+                          </button>
                         ) : (
-                          <>
-                            <UserPlusIcon className='size-4 mr-2' />
-                            Send Friend Request
-                          </>
+                          // No requests yet → show “Send Request” button
+                          <button
+                            className="btn btn-primary w-full mt-2"
+                            onClick={() => sendReqMutations(user._id)}
+                            disabled={isPending}
+                          >
+                            {isPending ? (
+                              <span className="loading loading-spinner loading-xs" />
+                            ) : (
+                              <>
+                                <UserPlusIcon className="size-4 mr-2" />
+                                Send Friend Request
+                              </>
+                            )}
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </div>
                   </div>
                 )
@@ -156,4 +204,3 @@ const HomePage = () => {
 
 export default HomePage
 
-const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
