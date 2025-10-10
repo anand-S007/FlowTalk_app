@@ -6,7 +6,6 @@ export const getRecommendedUsers = async (req, res) => {
     try {
         const currentUserId = req.user._id;
         const currentUser = req.user;
-        console.log('currentUser = ', currentUser);
 
         const recommendedUsers = await User.find({
             $and: [
@@ -14,7 +13,9 @@ export const getRecommendedUsers = async (req, res) => {
                 { _id: { $nin: currentUser.friends } },  // exclude friends
                 { isOnBoarded: true }                    // only onboarded users
             ]
-        }).select("-password");
+        })
+            .select("-password")
+            .sort({ createdAt: -1 })
 
         res.status(200).json({
             success: true,
@@ -110,7 +111,8 @@ export const sendFriendRequest = async (req, res) => {
             $or: [
                 { sender: currentUserId, recipient: recipientId },
                 { sender: recipientId, recipient: currentUserId }
-            ]
+            ],
+            status: { $ne: 'rejected' }
         })
         if (existingRequest)
             return res.status(400).json({
@@ -228,17 +230,24 @@ export const getFriendRequests = async (req, res) => {
         const incomingRequest = await FriendRequest.find({
             recipient: req.user.id,
             status: "pending"
-        }).populate('sender', "fullname profilePic nativeLanguage learningLanguage");
+        })
+            .populate('sender', "fullname profilePic nativeLanguage learningLanguage timestamps");
 
         const acceptedRequests = await FriendRequest.find({
             sender: req.user.id,
             status: "accepted"
-        }).populate('recipient', 'fullname profilePic')
+        }).populate('recipient', 'fullname profilePic timestamps');
+
+        const rejecteRequests = await FriendRequest.find({
+            sender: req.user.id,
+            status: "rejected"
+        }).populate('recipient', 'fullname profilePic timestamps');
 
         res.status(200).json({
             success: true,
             incomingRequest,
-            acceptedRequests
+            acceptedRequests,
+            rejecteRequests,
         });
 
     } catch (error) {
