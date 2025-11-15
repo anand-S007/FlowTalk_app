@@ -16,7 +16,10 @@ import { CONNECT_DB } from './lib/db.js';
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: [
+        "http://localhost:5173", 
+        "https://flowtalk-po50.onrender.com"
+    ],
     credentials: true
 }))
 // Middleware to parse json request bodies
