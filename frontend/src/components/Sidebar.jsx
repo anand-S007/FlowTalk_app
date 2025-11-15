@@ -1,13 +1,16 @@
-import React from 'react'
 import useAuthUser from '../hooks/useAuthUser'
 import { Link, useLocation } from 'react-router';
 import { BellIcon, HomeIcon, ShipWheelIcon, UsersIcon } from 'lucide-react';
+import { useGetFriendReqs } from '../hooks/useUserFriends';
 
 const Sidebar = () => {
     const { authUser } = useAuthUser();
 
     const location = useLocation();
     const currentPath = location.pathname;
+
+    const { data: friendRequests } = useGetFriendReqs()
+    const incomingFriendReqs = friendRequests?.incomingRequest || [];
 
     return (
         <aside className='w-64 bg-base-200 border-r border-base-300 
@@ -26,41 +29,44 @@ const Sidebar = () => {
             <nav className='flex-1 p-4 space-y-1'>
                 {/* HOME PAGE LINK */}
                 <Link to='/'
-                className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case 
-                ${currentPath === '/' ? "btn-active": ''}`}>
-                    <HomeIcon className='size-5 text-base-content opacity-70'/>
+                    className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case 
+                ${currentPath === '/' ? "btn-active" : ''}`}>
+                    <HomeIcon className='size-5 text-base-content opacity-70' />
                     <span>Home</span>
                 </Link>
-                
+
                 {/* FRIENDS PAGE LINK */}
                 <Link to='/friends'
-                className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case 
-                ${currentPath === '/friends' ? "btn-active": ''}`}>
-                    <UsersIcon className='size-5 text-base-content opacity-70'/>
+                    className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case 
+                ${currentPath === '/friends' ? "btn-active" : ''}`}>
+                    <UsersIcon className='size-5 text-base-content opacity-70' />
                     <span>Friends</span>
                 </Link>
 
                 {/* NOTIFICATION PAGE LINK */}
                 <Link to='/notifications'
-                className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case 
-                ${currentPath === '/notifications' ? "btn-active": ''}`}>
-                    <BellIcon className='size-5 text-base-content opacity-70'/>
+                    className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case 
+                ${currentPath === '/notifications' ? "btn-active" : ''}`}>
+                    <BellIcon className='size-5 text-base-content opacity-70' />
                     <span>Notifications</span>
+                    <span className='badge badge-primary badge-sm p-1 ml-2 '>
+                        {incomingFriendReqs?.length}
+                    </span>
                 </Link>
             </nav>
-            
+
             {/* USER PROFILE SECTION */}
             <div className='p-4 border-t border-base-300 mt-auto'>
                 <div className='flex items-center gap-3'>
                     <div className='avatar'>
                         <div className='w-10 rounded-full'>
-                            <img src= {authUser?.profilePic} alt="User avatar" />
+                            <img src={authUser?.profilePic} alt="User avatar" />
                         </div>
                     </div>
                     <div className='flex-1'>
                         <p className='font-semibold text-sm'>{authUser?.fullname}</p>
                         <p className='text-xs text-success flex items-center gap-1'>
-                            <span className='size-2 rounded-full bg-success inline-block'/>
+                            <span className='size-2 rounded-full bg-success inline-block' />
                             Online
                         </p>
                     </div>

@@ -4,6 +4,7 @@ import {
   HomePage,
   SignInPage,
   SignUpPage,
+  ForgotPage,
   NotificationPage,
   OnboardPage,
   ChatPage,
@@ -47,6 +48,14 @@ export const appRoutes = ({ isAuthenticated, isOnboarded }) => [
         <SignUpPage />
       </PublicRoute>
     ),
+  },
+  {
+    path: "/forgot_password",
+    element: (
+      <PublicRoute isAuthenticated={isAuthenticated}>
+        <ForgotPage />
+      </PublicRoute>
+    )
   },
   {
     path: "/",

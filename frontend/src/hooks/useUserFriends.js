@@ -8,6 +8,7 @@ import {
     rejectFriendRequest,
     getFriendReqs,
     getStreamToken,
+    unfriendRequest,
 } from "../lib/userApi";
 
 export const useGetFriends = () => {
@@ -60,19 +61,32 @@ export const useAcceptFriendReqs = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['incoming-friend-reqs'] });
             queryClient.invalidateQueries({ queryKey: ['friends'] });
+            queryClient.invalidateQueries({ queryKey: ['recommended-users'] });
         }
     })
 }
 
 export const useRejectFriendReqs = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: rejectFriendRequest,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['incoming-friend-reqs'] });
             queryClient.invalidateQueries({ queryKey: ['friends'] });
         }
-    })
+    });
+}
+
+export const useUnfriend = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: unfriendRequest,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["friends"]);
+            queryClient.invalidateQueries(["recommendedUsers"]);
+            queryClient.invalidateQueries(["friendRequests"]);
+        }
+    });
 }
 
 export const useStreamToken = (authUser) => {

@@ -197,7 +197,7 @@ const SignupPage = () => {
                     <input
                       type="password"
                       name='password'
-                      placeholder='******'
+                      placeholder='eg:- Anand@123'
                       className='input input-bordered w-full'
                       value={signupData.password}
                       onChange={handleInput}

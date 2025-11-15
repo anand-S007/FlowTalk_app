@@ -9,8 +9,8 @@ const NotificationPage = () => {
   const acceptedFriendReqs = friendRequests?.acceptedRequests || [];
   const rejectedFriendReqs = friendRequests?.rejecteRequests || [];
 
-  const { mutate: acceptRequestMutaion, isPending: isAcceptPending } = useAcceptFriendReqs()
-  const {mutate:rejectRequestMutation, isPending: isRejectionPending} = useRejectFriendReqs()
+  const { mutate: acceptRequestMutaion, isPending: isAcceptPending } = useAcceptFriendReqs();
+  const { mutate: rejectRequestMutation, isPending: isRejectionPending } = useRejectFriendReqs();
 
   return (
     <div className='p-4 sm:p-6 lg:p-8'>
@@ -59,17 +59,17 @@ const NotificationPage = () => {
                           </div>
                           <div className='flex flex-row gap-3 '>
                             <button className='btn btn-primary btn-sm'
-                            onClick={() => { acceptRequestMutaion(request?._id) }}
-                            disabled={isAcceptPending}>
-                            Accept
-                          </button>
-                          <button className='btn btn-outline border-red-700 text-red-700 btn-sm'
-                            onClick={() => { rejectRequestMutation(request?._id) }}
-                            disabled={isRejectionPending}>
-                            Reject
-                          </button>
+                              onClick={() => { acceptRequestMutaion(request?._id) }}
+                              disabled={isAcceptPending}>
+                              Accept
+                            </button>
+                            <button className='btn btn-outline border-red-700 text-red-700 btn-sm'
+                              onClick={() => { rejectRequestMutation(request?._id) }}
+                              disabled={isRejectionPending}>
+                              Reject
+                            </button>
                           </div>
-                          
+
                         </div>
 
                       </div>
@@ -80,7 +80,7 @@ const NotificationPage = () => {
             )}
 
             {/* ACCEPTED REQUEST NOTIFICATIONS */}
-            {acceptedFriendReqs?.length > 0  && (
+            {acceptedFriendReqs?.length > 0 && (
               <section className='space-y-4'>
                 <h2 className='text-xl font-semibold flex items-center gap-2'>
                   <BellIcon className='size-5 text-success' />
@@ -127,7 +127,7 @@ const NotificationPage = () => {
 
             {/* NO NOTIFICATIONS FOUND */}
             {incomingFriendReqs?.length == 0 && acceptedFriendReqs?.length == 0 && rejectedFriendReqs.length === 0 && (
-              <NoNotificationFound/>
+              <NoNotificationFound />
             )}
           </>
         )}

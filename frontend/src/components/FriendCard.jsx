@@ -1,8 +1,21 @@
-import {Link} from 'react-router'
+import { Link } from 'react-router'
 import { LANGUAGE_TO_FLAG } from '../constants';
-
+import { useUnfriend } from '../hooks/useUserFriends';
+import toast from 'react-hot-toast'
 
 const FriendCard = ({ friend }) => {
+
+    const { mutate: unFriendMutation, isPending, } = useUnfriend(friend._id);
+    const handleUnfriend = () => {
+        try {
+            unFriendMutation(friend._id);
+
+        } catch (error) {
+            console.log('error at unFriendMutation: ', error);
+            toast.error(error)
+        }
+
+    }
     return (
         <div className='card h-full bg-base-200 hover:shadow-md transition-shadow'>
             <div className='card-body p-4'>
@@ -25,12 +38,16 @@ const FriendCard = ({ friend }) => {
                     </span>
                 </div>
                 <div className='p-3 flex flex-row items-center justify-center gap-3'>
-                <Link to={`/chat/${friend._id}`} className="btn btn-outline w-1/2" >
-                    Message
-                </Link>
-                <button className='btn btn-outline border-red-700 text-red-700 w-1/2'>
-                    Unfriend
-                </button>
+                    <Link to={`/chat/${friend._id}`} className="btn btn-outline w-1/2" >
+                        Message
+                    </Link>
+                    <button
+                        className='btn btn-outline border-red-700 text-red-700 w-1/2'
+                        onClick={handleUnfriend}
+                        disabled={isPending}
+                    >
+                        Unfriend
+                    </button>
                 </div>
             </div>
         </div>

@@ -133,7 +133,7 @@ const SignInPage = () => {
                     <input
                       type="password"
                       name='password'
-                      placeholder='eg:- ******'
+                      placeholder='eg:- Anand@123'
                       value={formState.password}
                       onChange={handleInput}
                       className='input input-bordered w-full'
