@@ -1,7 +1,15 @@
 import axios from "axios";
 
+// On development use this
+// const axiosInstance = axios.create({
+//     baseURL: "http://localhost:3000/api",
+//     withCredentials: true,
+// })
+
+// On production use this
+const API = import.meta.env.VITE_API_URL;
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:3000/api",
+    baseURL: API,
     withCredentials: true,
 })
 
