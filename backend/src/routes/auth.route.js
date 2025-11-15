@@ -11,6 +11,8 @@ router.post('/signout', signOut)
 
 router.post('/onboard', protectRoute, onBoard)
 
+// router.get('/send-otp', sendOtp)
+
 // check if user logged in
 router.get('/me',protectRoute, (req, res) => {
     return res.status(200).json({success:true, user:req.user})

@@ -145,6 +145,14 @@ export async function signUp(req, res) {
     }
 }
 
+// Send otp
+// export async function sendOtp(req, res) {
+//     try {
+//         // Logic to send OTP to user's email or phone number
+//         // This is a placeholder implementation
+//         const otp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
+//         console.log(`Generated OTP: ${otp}`); // In real implementation, send this OTP via email/SMS
+
 // Sign out
 export async function signOut(req, res) {
     try {

@@ -279,3 +279,51 @@ export const getOutgoingFriendRequests = async (req, res) => {
         });
     }
 }
+
+export const unfriend = async (req, res) => {
+    const { friendId } = req.params;
+    const currentUserId = req.user._id;
+
+    try {
+        const currentUser = await User.findById(currentUserId);
+        // CHECK FRIENDID EXIST IS USER FRIEND LIST
+        if (!currentUser.friends.includes(friendId)) {
+            return res.status(400).json({
+                success: false,
+                message: "You are not friend with this user"
+            });
+        };
+
+        // REMOVE FRIENDID FROM USER'S FRIENDS LIST
+        await User.findByIdAndUpdate(
+            currentUserId,
+            { $pull: { friends: friendId } },
+            { new: true }
+        );
+        // REMOVE USERID FROM FRIEND'S FRIENDS LIST
+        await User.findByIdAndUpdate(
+            friendId,
+            { $pull: { friends: currentUserId } },
+            { new: true }
+        );
+
+        await FriendRequest.deleteMany({
+            $or: [
+                { sender: currentUserId, recipient: friendId },
+                { sender: friendId, recipient: currentUserId }
+            ]
+        })
+
+        return res.status(200).json({
+            success:true,
+            message:"Unfriended successfully."
+        })
+
+    } catch (error) {
+        console.log('error at unfriend controller: ',error);
+        res.status(500).json({
+            success:false,
+            message:'Internal server error'
+        });
+    };
+};
